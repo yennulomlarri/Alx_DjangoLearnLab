@@ -1,0 +1,19 @@
+# Python compiled files
+*.pyc
+__pycache__/
+
+# Environment variables (safe to ignore)
+.env
+.env.local
+
+# IDE files (safe to ignore)
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Virtual environment (safe to ignore)
+venv/
+env/
