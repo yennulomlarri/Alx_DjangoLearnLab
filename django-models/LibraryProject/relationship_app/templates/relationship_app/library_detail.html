@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Library Detail</title></head>
+<body>
+    <h1>Library: {{ library.name }}</h1>
+    <h2>Books</h2>
+    <ul>
+        {% for book in library.books.all %}
+            <li>{{ book.title }} by {{ book.author.name }}{% if book.publication_year %} ({{ book.publication_year }}){% endif %}</li>
+        {% empty %}
+            <li>No books in this library.</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'list_books' %}">Back to book list</a></p>
+</body>
+</html>
