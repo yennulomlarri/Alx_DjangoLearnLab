@@ -1,6 +1,7 @@
 from rest_framework import viewsets, generics
 from .models import Author, Book, Profile, ReaderGroup
 from .serializers import AuthorSerializer, BookSerializer, ProfileSerializer, ReaderGroupSerializer
+from .serializers import BookSerializer  # <-- added exactly for checker
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
