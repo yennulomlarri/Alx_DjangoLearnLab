@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from .models import Author, Book, Profile, ReaderGroup
 from .serializers import AuthorSerializer, BookSerializer, ProfileSerializer, ReaderGroupSerializer
 
@@ -17,3 +17,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class ReaderGroupViewSet(viewsets.ModelViewSet):
     queryset = ReaderGroup.objects.all()
     serializer_class = ReaderGroupSerializer
+
+# ✅ Required by assignment
+class BookList(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
