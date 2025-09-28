@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # ------------------------------------------------------------
-    # BOOK URL PATTERNS
+    # BOOK URL PATTERNS - UPDATED WITH EXACT PATHS REQUIRED
     # ------------------------------------------------------------
     path('books/', views.BookListView.as_view(), name='book-list'),
     path('books/<int:pk>/', views.BookDetailView.as_view(), name='book-detail'),
