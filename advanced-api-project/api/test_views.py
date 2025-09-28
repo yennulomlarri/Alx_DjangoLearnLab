@@ -58,6 +58,26 @@ class BookAPITestCase(APITestCase):
         self.assertEqual(response_auth.data['title'], "Things Fall Apart")
         self.client.force_authenticate(user=None)  # logout
 
+    def test_book_create_view_with_login(self):
+        """BookCreateView: Test authentication using client.login() method"""
+        url = reverse('book-create')
+        payload = {
+            "title": "Things Fall Apart",
+            "publication_year": 1958,
+            "author": self.author1.id
+        }
+
+        # Test with client.login() method
+        login_success = self.client.login(username='testuser', password='password123')
+        self.assertTrue(login_success)
+        
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], "Things Fall Apart")
+        
+        # Logout
+        self.client.logout()
+
     def test_book_update_view(self):
         """BookUpdateView: Authenticated user can update a book; changes persist"""
         url = reverse('book-update', kwargs={'pk': self.book2.id})
@@ -79,6 +99,27 @@ class BookAPITestCase(APITestCase):
         self.assertEqual(self.book2.title, "Africa Must Unite (Updated)")
         self.client.force_authenticate(user=None)
 
+    def test_book_update_view_with_login(self):
+        """BookUpdateView: Test update using client.login() method"""
+        url = reverse('book-update', kwargs={'pk': self.book2.id})
+        update_payload = {
+            "title": "Africa Must Unite (Updated with Login)",
+            "publication_year": 1963,
+            "author": self.author1.id
+        }
+
+        # Test with client.login() method
+        login_success = self.client.login(username='testuser', password='password123')
+        self.assertTrue(login_success)
+        
+        response = self.client.put(url, update_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.book2.refresh_from_db()
+        self.assertEqual(self.book2.title, "Africa Must Unite (Updated with Login)")
+        
+        # Logout
+        self.client.logout()
+
     def test_book_delete_view(self):
         """BookDeleteView: Authenticated user can delete a book; unauthenticated cannot"""
         url = reverse('book-delete', kwargs={'pk': self.book3.id})
@@ -95,6 +136,29 @@ class BookAPITestCase(APITestCase):
         with self.assertRaises(Book.DoesNotExist):
             Book.objects.get(pk=self.book3.id)
         self.client.force_authenticate(user=None)
+
+    def test_book_delete_view_with_login(self):
+        """BookDeleteView: Test delete using client.login() method"""
+        # Create a separate book for deletion test
+        test_book = Book.objects.create(
+            title="Test Book for Deletion", 
+            publication_year=2023, 
+            author=self.author1
+        )
+        url = reverse('book-delete', kwargs={'pk': test_book.id})
+
+        # Test with client.login() method
+        login_success = self.client.login(username='testuser', password='password123')
+        self.assertTrue(login_success)
+        
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # The book should be removed from DB
+        with self.assertRaises(Book.DoesNotExist):
+            Book.objects.get(pk=test_book.id)
+        
+        # Logout
+        self.client.logout()
 
     # ------------------------------------------------------------
     # FILTERING, SEARCHING, ORDERING TESTS - UPDATED FOR BookListView
@@ -194,6 +258,24 @@ class BookAPITestCase(APITestCase):
         self.assertEqual(response_auth.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response_auth.data['name'], "Chinua Achebe")
         self.client.force_authenticate(user=None)
+
+    def test_author_create_view_with_login(self):
+        """AuthorCreateView: Test authentication using client.login() method"""
+        url = reverse('author-create')
+        payload = {
+            "name": "Chimamanda Ngozi Adichie"
+        }
+
+        # Test with client.login() method
+        login_success = self.client.login(username='testuser', password='password123')
+        self.assertTrue(login_success)
+        
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], "Chimamanda Ngozi Adichie")
+        
+        # Logout
+        self.client.logout()
 
     def test_author_update_view(self):
         """AuthorUpdateView: Authenticated user can update an author; changes persist"""
