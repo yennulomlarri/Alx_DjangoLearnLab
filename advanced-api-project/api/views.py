@@ -1,6 +1,6 @@
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as django_filters
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 
@@ -17,10 +17,10 @@ class BookListView(generics.ListAPIView):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [AllowAny]  # Use explicit import
+    permission_classes = [AllowAny]
 
     # Enable filtering, searching, and ordering
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['publication_year', 'author']
     search_fields = ['title', 'author__name']
     ordering_fields = ['title', 'publication_year', 'id']
@@ -34,7 +34,7 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [AllowAny]  # Use explicit import
+    permission_classes = [AllowAny]
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -45,7 +45,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
 
 
 class BookUpdateView(generics.UpdateAPIView):
@@ -56,7 +56,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
 
 
 class BookDeleteView(generics.DestroyAPIView):
@@ -67,7 +67,7 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
 
 
 # ------------------------------------------------------------
@@ -82,10 +82,10 @@ class AuthorListView(generics.ListAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [AllowAny]  # Use explicit import
+    permission_classes = [AllowAny]
 
     # Enable search, filter, and ordering
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name']
     search_fields = ['name']
     ordering_fields = ['id', 'name']
@@ -99,7 +99,7 @@ class AuthorDetailView(generics.RetrieveAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [AllowAny]  # Use explicit import
+    permission_classes = [AllowAny]
 
 
 class AuthorCreateView(generics.CreateAPIView):
@@ -110,7 +110,7 @@ class AuthorCreateView(generics.CreateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
 
 
 class AuthorUpdateView(generics.UpdateAPIView):
@@ -121,7 +121,7 @@ class AuthorUpdateView(generics.UpdateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
 
 
 class AuthorDeleteView(generics.DestroyAPIView):
@@ -132,4 +132,4 @@ class AuthorDeleteView(generics.DestroyAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticated]  # Use explicit import
+    permission_classes = [IsAuthenticated]
