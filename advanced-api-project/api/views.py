@@ -1,4 +1,5 @@
-from rest_framework import generics, permissions, filters
+from rest_framework import generics, filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
@@ -16,7 +17,7 @@ class BookListView(generics.ListAPIView):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]  # Use explicit import
 
     # Enable filtering, searching, and ordering
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -33,7 +34,7 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]  # Use explicit import
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -44,7 +45,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
 
 
 class BookUpdateView(generics.UpdateAPIView):
@@ -55,7 +56,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
 
 
 class BookDeleteView(generics.DestroyAPIView):
@@ -66,7 +67,7 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
 
 
 # ------------------------------------------------------------
@@ -81,7 +82,7 @@ class AuthorListView(generics.ListAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]  # Use explicit import
 
     # Enable search, filter, and ordering
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -98,7 +99,7 @@ class AuthorDetailView(generics.RetrieveAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]  # Use explicit import
 
 
 class AuthorCreateView(generics.CreateAPIView):
@@ -109,7 +110,7 @@ class AuthorCreateView(generics.CreateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
 
 
 class AuthorUpdateView(generics.UpdateAPIView):
@@ -120,7 +121,7 @@ class AuthorUpdateView(generics.UpdateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
 
 
 class AuthorDeleteView(generics.DestroyAPIView):
@@ -131,4 +132,4 @@ class AuthorDeleteView(generics.DestroyAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Use explicit import
