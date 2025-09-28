@@ -5,63 +5,130 @@ from .serializers import AuthorSerializer, BookSerializer
 
 
 # ------------------------------------------------------------
-# AUTHOR VIEWS
+# BOOK VIEWS - SEPARATED AS REQUIRED
 # ------------------------------------------------------------
-class AuthorListCreateView(generics.ListCreateAPIView):
-    """
-    GET: List all authors
-    POST: Create a new author
-    Supports: Search, Filter, Ordering
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    # Only authenticated users can create/update/delete, others can read
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # Enable search, filter, and ordering
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['name']  # allows ?name=Kwame
-    search_fields = ['name']     # allows ?search=Kwame
-    ordering_fields = ['id', 'name']  # allows ?ordering=name
-
-
-class AuthorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class BookListView(generics.ListAPIView):
     """
-    GET: Retrieve an author by ID
-    PUT/PATCH: Update author
-    DELETE: Delete author
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-# ------------------------------------------------------------
-# BOOK VIEWS
-# ------------------------------------------------------------
-class BookListCreateView(generics.ListCreateAPIView):
-    """
-    GET: List all books
-    POST: Create a new book
-    Supports: Filtering, Search, and Ordering
+    ListView for retrieving all books.
+    URL: /api/books/
+    Method: GET
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
 
     # Enable filtering, searching, and ordering
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['publication_year', 'author']  # e.g., ?publication_year=1960
-    search_fields = ['title', 'author__name']          # e.g., ?search=Gatsby
-    ordering_fields = ['title', 'publication_year', 'id']  # e.g., ?ordering=title
+    filterset_fields = ['publication_year', 'author']
+    search_fields = ['title', 'author__name']
+    ordering_fields = ['title', 'publication_year', 'id']
 
 
-class BookRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class BookDetailView(generics.RetrieveAPIView):
     """
-    GET: Retrieve a book
-    PUT/PATCH: Update a book
-    DELETE: Delete a book
+    DetailView for retrieving a single book by ID.
+    URL: /api/books/<int:pk>/
+    Method: GET
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
+
+
+class BookCreateView(generics.CreateAPIView):
+    """
+    CreateView for adding a new book.
+    URL: /api/books/create/
+    Method: POST
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BookUpdateView(generics.UpdateAPIView):
+    """
+    UpdateView for modifying an existing book.
+    URL: /api/books/<int:pk>/update/
+    Methods: PUT, PATCH
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BookDeleteView(generics.DestroyAPIView):
+    """
+    DeleteView for removing a book.
+    URL: /api/books/<int:pk>/delete/
+    Method: DELETE
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# ------------------------------------------------------------
+# AUTHOR VIEWS - SEPARATED AS REQUIRED
+# ------------------------------------------------------------
+
+class AuthorListView(generics.ListAPIView):
+    """
+    ListView for retrieving all authors.
+    URL: /api/authors/
+    Method: GET
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.AllowAny]
+
+    # Enable search, filter, and ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['name']
+    search_fields = ['name']
+    ordering_fields = ['id', 'name']
+
+
+class AuthorDetailView(generics.RetrieveAPIView):
+    """
+    DetailView for retrieving a single author by ID.
+    URL: /api/authors/<int:pk>/
+    Method: GET
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class AuthorCreateView(generics.CreateAPIView):
+    """
+    CreateView for adding a new author.
+    URL: /api/authors/create/
+    Method: POST
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class AuthorUpdateView(generics.UpdateAPIView):
+    """
+    UpdateView for modifying an existing author.
+    URL: /api/authors/<int:pk>/update/
+    Methods: PUT, PATCH
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class AuthorDeleteView(generics.DestroyAPIView):
+    """
+    DeleteView for removing an author.
+    URL: /api/authors/<int:pk>/delete/
+    Method: DELETE
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
