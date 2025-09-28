@@ -28,8 +28,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Expect at least the three books we created
-        self.assertGreaterEqual(len(response.data), 3)
+        # FIX: Handle paginated response
+        self.assertIn('results', response.data)
+        self.assertGreaterEqual(len(response.data['results']), 3)
 
     def test_book_detail_view(self):
         """GET /api/books/<id>/ should return the book detail using BookDetailView"""
@@ -169,8 +170,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + '?publication_year=1963'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # only book2 has year 1963
-        years = [item['publication_year'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        years = [item['publication_year'] for item in results]
         self.assertTrue(all(y == 1963 for y in years))
 
     def test_filter_by_author(self):
@@ -178,8 +180,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + f'?author={self.author1.id}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # only books by author1
-        authors = [item['author'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        authors = [item['author'] for item in results]
         self.assertTrue(all(a == self.author1.id for a in authors))
 
     def test_search_by_title(self):
@@ -187,8 +190,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + '?search=Gatsby'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Expect at least one result and its title to contain 'Gatsby'
-        titles = [item['title'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        titles = [item['title'] for item in results]
         self.assertTrue(any('Gatsby' in t for t in titles))
 
     def test_search_by_author_name(self):
@@ -196,15 +200,18 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + '?search=Fitzgerald'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Should return books by Fitzgerald
-        self.assertGreaterEqual(len(response.data), 1)
+        # FIX: Handle paginated response
+        results = response.data['results']
+        self.assertGreaterEqual(len(results), 1)
 
     def test_ordering_by_publication_year_ascending(self):
         """BookListView: Ordering results by publication_year should return them sorted ascending"""
         url = reverse('book-list') + '?ordering=publication_year'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        pub_years = [item['publication_year'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        pub_years = [item['publication_year'] for item in results]
         self.assertEqual(pub_years, sorted(pub_years))
 
     def test_ordering_by_publication_year_descending(self):
@@ -212,7 +219,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + '?ordering=-publication_year'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        pub_years = [item['publication_year'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        pub_years = [item['publication_year'] for item in results]
         self.assertEqual(pub_years, sorted(pub_years, reverse=True))
 
     def test_ordering_by_title(self):
@@ -220,7 +229,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('book-list') + '?ordering=title'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        titles = [item['title'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        titles = [item['title'] for item in results]
         self.assertEqual(titles, sorted(titles))
 
     # ------------------------------------------------------------
@@ -232,7 +243,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('author-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 2)
+        # FIX: Handle paginated response
+        self.assertIn('results', response.data)
+        self.assertGreaterEqual(len(response.data['results']), 2)
 
     def test_author_detail_view(self):
         """GET /api/authors/<id>/ should return the author detail using AuthorDetailView"""
@@ -324,7 +337,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('author-list') + '?search=Kwame'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        names = [item['name'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        names = [item['name'] for item in results]
         self.assertTrue(any('Kwame' in name for name in names))
 
     def test_author_ordering_by_name(self):
@@ -332,7 +347,9 @@ class BookAPITestCase(APITestCase):
         url = reverse('author-list') + '?ordering=name'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        names = [item['name'] for item in response.data]
+        # FIX: Handle paginated response
+        results = response.data['results']
+        names = [item['name'] for item in results]
         self.assertEqual(names, sorted(names))
 
     # ------------------------------------------------------------
