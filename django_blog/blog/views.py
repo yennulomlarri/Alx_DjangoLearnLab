@@ -7,7 +7,6 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q  
 from taggit.models import Tag  
-from django.contrib.auth.forms import UserChangeForm  # ADD THIS IMPORT
 from .models import Post, Comment
 from .forms import UserRegisterForm, PostForm, CommentForm
 
@@ -32,21 +31,10 @@ def custom_logout(request):
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
 
-# FIXED PROFILE VIEW - HANDLES POST REQUESTS FOR UPDATING USER INFO
 @login_required
 def profile(request):
-    if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('profile')
-    else:
-        form = UserChangeForm(instance=request.user)
-    
-    return render(request, 'blog/profile.html', {'form': form})
+    return render(request, 'blog/profile.html')
 
-# Post Views
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -96,7 +84,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         post = self.get_object()
         return self.request.user == post.author
 
-# Comment Views
 @login_required
 def add_comment(request, pk):
     post = get_object_or_404(Post, pk=pk)
