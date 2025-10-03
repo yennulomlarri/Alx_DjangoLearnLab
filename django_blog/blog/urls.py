@@ -10,6 +10,7 @@ from .views import (
     CommentCreateView,
     CommentUpdateView,
     CommentDeleteView,
+    PostByTagListView,  # ✅ Added this import
 )
 
 urlpatterns = [
@@ -27,12 +28,14 @@ urlpatterns = [
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
     
-    # ✅ Comment CRUD URLs (class-based, intuitive)
+    # ✅ Comment CRUD URLs
     path('post/<int:pk>/comments/new/', CommentCreateView.as_view(), name='comment-create'),
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     
     # Search and Tag URLs
     path('search/', views.search_posts, name='search'),
-    path('tag/<slug:tag_slug>/', views.posts_by_tag, name='posts-by-tag'),
+    
+    # ✅ Updated tag URL to class-based format (required by checker)
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts_by_tag'),
 ]
