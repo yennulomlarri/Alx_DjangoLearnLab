@@ -1,0 +1,34 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Posts tagged with "{{ tag.name }}" - Django Blog{% endblock %}
+
+{% block content %}
+<div class="tag-posts">
+    <h2>Posts tagged with: "{{ tag.name }}"</h2>
+    
+    {% if posts %}
+        <p>Found {{ posts|length }} post{{ posts|pluralize }} with this tag.</p>
+        
+        {% for post in posts %}
+            <article class="post">
+                <h3><a href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h3>
+                <div class="post-meta">
+                    By {{ post.author }} on {{ post.published_date|date:"F d, Y" }}
+                </div>
+                <p>{{ post.content|truncatewords:30 }}</p>
+                
+                <div class="tags">
+                    {% for tag in post.tags.all %}
+                        <a href="{% url 'posts-by-tag' tag.slug %}" class="tag">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                
+                <a href="{% url 'post-detail' post.id %}" class="btn">Read More</a>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>No posts found with this tag.</p>
+        <p><a href="{% url 'post-list' %}">Browse all posts</a></p>
+    {% endif %}
+</div>
+{% endblock %}

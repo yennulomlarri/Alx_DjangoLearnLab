@@ -1,0 +1,78 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ object.title }} - Django Blog{% endblock %}
+
+{% block content %}
+<article class="post">
+    <h1>{{ object.title }}</h1>
+    <div class="post-meta">
+        By {{ object.author }} on {{ object.published_date|date:"F d, Y" }}
+    </div>
+    <div class="post-content">
+        {{ object.content|linebreaks }}
+    </div>
+    
+    <!-- ADD TAGS DISPLAY SECTION -->
+    {% if object.tags.all %}
+    <div class="post-tags">
+        <h4>Tags:</h4>
+        <div class="tags">
+            {% for tag in object.tags.all %}
+                <a href="{% url 'posts-by-tag' tag.slug %}" class="tag">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if object.author == user %}
+        <div class="post-actions">
+            <a href="{% url 'post-update' object.id %}" class="btn">Edit Post</a>
+            <a href="{% url 'post-delete' object.id %}" class="btn btn-danger">Delete Post</a>
+        </div>
+    {% endif %}
+</article>
+
+<!-- Comments Section -->
+<section class="comments-section">
+    <h3>Comments ({{ comments.count }})</h3>
+    
+    {% if user.is_authenticated %}
+        <div class="add-comment">
+            <h4>Add a Comment</h4>
+            <form method="POST" action="{% url 'add-comment' object.id %}">
+                {% csrf_token %}
+                {{ comment_form.content }}
+                <button type="submit" class="btn">Post Comment</button>
+            </form>
+        </div>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+    {% endif %}
+    
+    <div class="comments-list">
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-meta">
+                    <strong>{{ comment.author }}</strong>
+                    <span>{{ comment.created_at|date:"F d, Y H:i" }}</span>
+                </div>
+                <div class="comment-content">
+                    {{ comment.content|linebreaks }}
+                </div>
+                {% if comment.author == user %}
+                    <form method="POST" action="{% url 'delete-comment' comment.id %}" class="delete-comment-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-small">Delete Comment</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="navigation">
+    <a href="{% url 'post-list' %}" class="btn">Back to All Posts</a>
+</div>
+{% endblock %}
