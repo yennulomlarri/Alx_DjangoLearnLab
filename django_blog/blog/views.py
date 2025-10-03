@@ -6,14 +6,17 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q  
+from django.urls import reverse_lazy
 from taggit.models import Tag  
 from .models import Post, Comment
 from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm  # ✅ Added ProfileForm import
+
 
 # 🏠 Home Page
 def home(request):
     posts = Post.objects.all().order_by('-published_date')[:3] 
     return render(request, 'blog/home.html', {'posts': posts})
+
 
 # 🧍 Register User
 def register(request):
@@ -28,11 +31,13 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
+
 # 🚪 Logout
 def custom_logout(request):
     auth_logout(request)
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
+
 
 # 👤 Profile view (with edit)
 @login_required
@@ -47,55 +52,63 @@ def profile(request):
         form = ProfileForm(instance=request.user)
     return render(request, 'registration/profile.html', {'form': form})
 
-# 📚 Post Views
+
+# 📚 Post Views (CRUD)
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/listing.html'  # ✅ changed from post_list.html
+    template_name = 'blog/post_list.html'   # ✅ must match task
     context_object_name = 'posts'
     ordering = ['-published_date']
     paginate_by = 5
 
+
 class PostDetailView(DetailView):
     model = Post
-    
+    template_name = 'blog/post_detail.html'  # ✅ must match task
+    context_object_name = 'post'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comments'] = self.object.comments.all().order_by('-created_at')
         context['comment_form'] = CommentForm()
         return context
 
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html'
-    
+    template_name = 'blog/post_form.html'   # ✅ must match task
+
     def form_valid(self, form):
         form.instance.author = self.request.user
         messages.success(self.request, 'Your post has been created!')
         return super().form_valid(form)
 
+
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html'
-    
+    template_name = 'blog/post_form.html'   # ✅ same as create
+
     def form_valid(self, form):
         form.instance.author = self.request.user
         messages.success(self.request, 'Your post has been updated!')
         return super().form_valid(form)
-    
+
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
 
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    template_name = 'blog/post_confirm_delete.html'
-    success_url = '/'
-    
+    template_name = 'blog/post_confirm_delete.html'  # ✅ must match task
+    success_url = reverse_lazy('post-list')          # ✅ better than '/'
+
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
 
 # 💬 Comment CRUD Views
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -143,6 +156,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
+
 # 🔍 Search Posts
 def search_posts(request):
     query = request.GET.get('q')
@@ -171,6 +185,7 @@ def search_posts(request):
         'search_performed': bool(query or tag_name)
     }
     return render(request, 'blog/search_results.html', context)
+
 
 # 🏷️ Posts by Tag
 def posts_by_tag(request, tag_slug):
