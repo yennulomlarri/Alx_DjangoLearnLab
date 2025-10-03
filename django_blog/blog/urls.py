@@ -7,7 +7,7 @@ urlpatterns = [
     # Home and authentication
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     # USE CUSTOM LOGOUT VIEW INSTEAD
     path('logout/', views.custom_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
