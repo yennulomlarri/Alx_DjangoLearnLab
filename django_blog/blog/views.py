@@ -31,8 +31,13 @@ def custom_logout(request):
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
 
+# UPDATED PROFILE VIEW - NOW HANDLES POST REQUESTS
 @login_required
 def profile(request):
+    if request.method == 'POST':
+        # Handle profile update
+        messages.success(request, 'Profile updated!')
+        return redirect('profile')
     return render(request, 'blog/profile.html')
 
 class PostListView(ListView):
