@@ -9,12 +9,12 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from taggit.models import Tag  
 from .models import Post, Comment
-from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm  # ✅ Added ProfileForm import
+from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm
 
 
 # 🏠 Home Page
 def home(request):
-    posts = Post.objects.all().order_by('-published_date')[:3] 
+    posts = Post.objects.all().order_by('-published_date')[:3]
     return render(request, 'blog/home.html', {'posts': posts})
 
 
@@ -103,7 +103,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'  # ✅ must match task
-    success_url = reverse_lazy('post-list')          # ✅ better than '/'
+    success_url = reverse_lazy('post-list')          # ✅ redirect to list
 
     def test_func(self):
         post = self.get_object()
