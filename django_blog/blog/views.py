@@ -10,10 +10,12 @@ from taggit.models import Tag
 from .models import Post, Comment
 from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm  # ✅ Added ProfileForm import
 
+# 🏠 Home Page
 def home(request):
     posts = Post.objects.all().order_by('-published_date')[:3] 
     return render(request, 'blog/home.html', {'posts': posts})
 
+# 🧍 Register User
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -26,12 +28,13 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
+# 🚪 Logout
 def custom_logout(request):
     auth_logout(request)
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
 
-# ✅ FIXED PROFILE VIEW TO HANDLE PROFILE EDIT
+# 👤 Profile view (with edit)
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -44,9 +47,10 @@ def profile(request):
         form = ProfileForm(instance=request.user)
     return render(request, 'registration/profile.html', {'form': form})
 
+# 📚 Post Views
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'
+    template_name = 'blog/listing.html'  # ✅ changed from post_list.html
     context_object_name = 'posts'
     ordering = ['-published_date']
     paginate_by = 5
@@ -93,27 +97,53 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         post = self.get_object()
         return self.request.user == post.author
 
-@login_required
-def add_comment(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.author = request.user
-            comment.save()
-            messages.success(request, 'Your comment has been added!')
-            return redirect('post-detail', pk=post.pk)
+# 💬 Comment CRUD Views
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
 
-@login_required
-def delete_comment(request, pk):
-    comment = get_object_or_404(Comment, pk=pk)
-    if comment.author == request.user:
-        comment.delete()
-        messages.success(request, 'Your comment has been deleted!')
-    return redirect('post-detail', pk=comment.post.pk)
+    def form_valid(self, form):
+        post_id = self.kwargs.get('pk')
+        post = get_object_or_404(Post, pk=post_id)
+        form.instance.author = self.request.user
+        form.instance.post = post
+        messages.success(self.request, 'Your comment has been added!')
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your comment has been updated!')
+        return super().form_valid(form)
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
+
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
+
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
+
+# 🔍 Search Posts
 def search_posts(request):
     query = request.GET.get('q')
     tag_name = request.GET.get('tag')
@@ -142,6 +172,7 @@ def search_posts(request):
     }
     return render(request, 'blog/search_results.html', context)
 
+# 🏷️ Posts by Tag
 def posts_by_tag(request, tag_slug):
     tag = get_object_or_404(Tag, slug=tag_slug)
     posts = Post.objects.filter(tags__in=[tag])
