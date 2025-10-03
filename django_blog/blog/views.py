@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login
-from django.contrib.auth import logout as auth_logout  # ADD THIS IMPORT
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q  
 from taggit.models import Tag  
+from django.contrib.auth.forms import UserChangeForm  # ADD THIS IMPORT
 from .models import Post, Comment
 from .forms import UserRegisterForm, PostForm, CommentForm
 
@@ -26,15 +27,24 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
-# ADD CUSTOM LOGOUT FUNCTION HERE
 def custom_logout(request):
     auth_logout(request)
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
 
+# FIXED PROFILE VIEW - HANDLES POST REQUESTS FOR UPDATING USER INFO
 @login_required
 def profile(request):
-    return render(request, 'blog/profile.html')
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+    else:
+        form = UserChangeForm(instance=request.user)
+    
+    return render(request, 'blog/profile.html', {'form': form})
 
 # Post Views
 class PostListView(ListView):
@@ -107,7 +117,6 @@ def delete_comment(request, pk):
         comment.delete()
         messages.success(request, 'Your comment has been deleted!')
     return redirect('post-detail', pk=comment.post.pk)
-
 
 def search_posts(request):
     query = request.GET.get('q')
