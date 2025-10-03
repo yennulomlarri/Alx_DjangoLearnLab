@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Post, Comment
 from taggit.models import Tag
 
+
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     
@@ -18,6 +19,13 @@ class UserRegisterForm(UserCreationForm):
             user.save()
         return user
 
+
+class ProfileForm(forms.ModelForm):  # ✅ Added ProfileForm
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
@@ -31,6 +39,7 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tags'].help_text = 'Separate tags with commas'
+
 
 class CommentForm(forms.ModelForm):
     class Meta:
