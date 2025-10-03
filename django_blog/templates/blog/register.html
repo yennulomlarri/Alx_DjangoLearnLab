@@ -6,6 +6,7 @@
 {% block content %}
 <div class="auth-container">
     <h2>Create Your Account</h2>
+
     <form method="POST">
         {% csrf_token %}
         {% for field in form %}
@@ -19,8 +20,11 @@
         {% endfor %}
         <button type="submit" class="btn">Sign Up</button>
     </form>
+
     <div class="auth-links">
-        <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+        <p>Already have an account? 
+            <a href="{% url 'login' %}">Log In</a>
+        </p>
     </div>
 </div>
 {% endblock %}

@@ -1,30 +1,46 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Django Blog{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <!-- ✅ Link to your static CSS file -->
+    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}">
 </head>
+
 <body>
+    <!-- ✅ Header Navigation -->
     <header>
         <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'post-create' %}">New Post</a></li>
-                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Register</a></li>
-                {% endif %}
-            </ul>
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
+
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'post-create' %}">New Post</a></li>
+                        <li><a href="{% url 'profile' %}">Profile</a></li>
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
+
+                <!-- ✅ Search Bar -->
+                <div class="search-form">
+                    <form method="GET" action="{% url 'search' %}">
+                        <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q }}">
+                        <button type="submit" class="btn btn-small">Search</button>
+                    </form>
+                </div>
+            </div>
         </nav>
     </header>
 
+    <!-- ✅ Main Content Area -->
     <div class="content">
         {% if messages %}
             {% for message in messages %}
@@ -33,43 +49,18 @@
                 </div>
             {% endfor %}
         {% endif %}
-        
+
         {% block content %}
-        <!-- Page-specific content goes here -->
+        <!-- Page-specific content -->
         {% endblock %}
     </div>
 
+    <!-- ✅ Footer -->
     <footer>
-         <p>&copy; {% now "Y" %} Django Blog</p>
+        <p>&copy; {% now "Y" %} Django Blog</p>
     </footer>
 
+    <!-- ✅ Optional JS -->
     <script src="{% static 'js/scripts.js' %}"></script>
-
-    <header>
-    <nav>
-        <div class="nav-container">
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'post-create' %}">New Post</a></li>
-                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Register</a></li>
-                {% endif %}
-            </ul>
-            
-            <!-- ADD SEARCH FORM -->
-            <div class="search-form">
-                <form method="GET" action="{% url 'search' %}">
-                    <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q }}">
-                    <button type="submit" class="btn btn-small">Search</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-</header>
 </body>
 </html>
