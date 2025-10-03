@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q  
 from taggit.models import Tag  
 from .models import Post, Comment
-from .forms import UserRegisterForm, PostForm, CommentForm
+from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm  # ✅ Added ProfileForm import
 
 def home(request):
     posts = Post.objects.all().order_by('-published_date')[:3] 
@@ -31,14 +31,18 @@ def custom_logout(request):
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
 
-# UPDATED PROFILE VIEW - NOW HANDLES POST REQUESTS
+# ✅ FIXED PROFILE VIEW TO HANDLE PROFILE EDIT
 @login_required
 def profile(request):
     if request.method == 'POST':
-        # Handle profile update
-        messages.success(request, 'Profile updated!')
-        return redirect('profile')
-    return render(request, 'blog/profile.html')
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=request.user)
+    return render(request, 'registration/profile.html', {'form': form})
 
 class PostListView(ListView):
     model = Post
