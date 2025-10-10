@@ -21,6 +21,6 @@
         <a href="{% url 'post-detail' post.id %}" class="btn">Read More</a>
     </article>
 {% empty %}
-    <p>No posts yet. <a href="{% url 'post-create' %}">Create the first post!</a></p>
+    <p>No posts yet. <a href="{% url 'post_create' %}">Create the first post!</a></p>
 {% endfor %}
 {% endblock %}

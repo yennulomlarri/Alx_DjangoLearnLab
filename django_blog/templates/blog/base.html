@@ -7,7 +7,7 @@
     <title>{% block title %}Django Blog{% endblock %}</title>
 
     <!-- Global Stylesheet -->
-    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- ✅ Fixed path -->
 </head>
 
 <body>
@@ -17,10 +17,10 @@
             <div class="nav-container">
                 <ul class="nav-links">
                     <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
+                    <li><a href="{% url 'post_list' %}">Blog Posts</a></li>  <!-- ✅ Fixed: post-list → post_list -->
 
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'post-create' %}">New Post</a></li>
+                        <li><a href="{% url 'post_create' %}">New Post</a></li>  <!-- ✅ Fixed: post-create → post_create -->
                         <li><a href="{% url 'profile' %}">Profile</a></li>
                         <li><a href="{% url 'logout' %}">Logout</a></li>
                     {% else %}
@@ -60,8 +60,6 @@
     </footer>
 
     <!-- Global Scripts -->
-    <script src="{% static 'blog/js/scripts.js' %}"></script>
+    <script src="{% static 'js/script.js' %}"></script>  <!-- ✅ Fixed path -->
 </body>
 </html>
-
-

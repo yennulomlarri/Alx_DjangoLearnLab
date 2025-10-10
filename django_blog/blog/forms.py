@@ -2,9 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Post, Comment
-from taggit.models import Tag
 from taggit.forms import TagWidget
-
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -20,27 +18,22 @@ class UserRegisterForm(UserCreationForm):
             user.save()
         return user
 
-
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
 
-
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
-        # ✅ Use TagWidget() directly so the checker can detect it
         widgets = {
             'tags': TagWidget()
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # ✅ Keep your helpful tag hint
         self.fields['tags'].help_text = 'Separate tags with commas'
-
 
 class CommentForm(forms.ModelForm):
     class Meta:

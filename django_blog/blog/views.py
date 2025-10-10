@@ -11,12 +11,10 @@ from taggit.models import Tag
 from .models import Post, Comment
 from .forms import UserRegisterForm, PostForm, CommentForm, ProfileForm
 
-
 # 🏠 Home Page
 def home(request):
     posts = Post.objects.all().order_by('-published_date')[:3]
     return render(request, 'blog/home.html', {'posts': posts})
-
 
 # 🧍 Register User
 def register(request):
@@ -31,13 +29,11 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
-
 # 🚪 Logout
 def custom_logout(request):
     auth_logout(request)
     messages.success(request, 'You have been successfully logged out!')
     return redirect('home')
-
 
 # 👤 Profile view (with edit)
 @login_required
@@ -50,21 +46,19 @@ def profile(request):
             return redirect('profile')
     else:
         form = ProfileForm(instance=request.user)
-    return render(request, 'registration/profile.html', {'form': form})
-
+    return render(request, 'blog/profile.html', {'form': form})
 
 # 📚 Post Views (CRUD)
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'   # ✅ must match task
+    template_name = 'blog/blog_list.html'
     context_object_name = 'posts'
     ordering = ['-published_date']
     paginate_by = 5
 
-
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'blog/post_detail.html'  # ✅ must match task
+    template_name = 'blog/blog_detail.html'
     context_object_name = 'post'
 
     def get_context_data(self, **kwargs):
@@ -73,22 +67,20 @@ class PostDetailView(DetailView):
         context['comment_form'] = CommentForm()
         return context
 
-
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html'   # ✅ must match task
+    template_name = 'blog/blog_create.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         messages.success(self.request, 'Your post has been created!')
         return super().form_valid(form)
 
-
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html'   # ✅ same as create
+    template_name = 'blog/blog_edit.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -99,16 +91,31 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         return self.request.user == post.author
 
-
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    template_name = 'blog/post_confirm_delete.html'  # ✅ must match task
-    success_url = reverse_lazy('post-list')          # ✅ redirect to list
+    template_name = 'blog/blog_delete.html'
+    success_url = reverse_lazy('post_list')
 
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
 
+# 🏷️ Posts by Tag (ADDED - was missing)
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag]).order_by('-published_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
 
 # 💬 Comment CRUD Views
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -127,7 +134,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -144,7 +150,6 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
@@ -155,7 +160,6 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
-
 
 # 🔍 Search Posts
 def search_posts(request):
@@ -186,8 +190,7 @@ def search_posts(request):
     }
     return render(request, 'blog/search_results.html', context)
 
-
-# 🏷️ Posts by Tag
+# 🏷️ Posts by Tag (function-based alternative)
 def posts_by_tag(request, tag_slug):
     tag = get_object_or_404(Tag, slug=tag_slug)
     posts = Post.objects.filter(tags__in=[tag])
