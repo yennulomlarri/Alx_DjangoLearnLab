@@ -17,7 +17,7 @@
         <h4>Tags:</h4>
         <div class="tags">
             {% for tag in object.tags.all %}
-                <a href="{% url 'posts-by-tag' tag.slug %}" class="tag">{{ tag.name }}</a>
+                <a href="{% url 'posts_by_tag' tag.slug %}" class="tag">{{ tag.name }}</a>
             {% endfor %}
         </div>
     </div>
@@ -25,8 +25,8 @@
 
     {% if object.author == user %}
         <div class="post-actions">
-            <a href="{% url 'post-update' object.id %}" class="btn">Edit Post</a>
-            <a href="{% url 'post-delete' object.id %}" class="btn btn-danger">Delete Post</a>
+            <a href="{% url 'post_edit' object.pk %}" class="btn">Edit Post</a>
+            <a href="{% url 'post_delete' object.pk %}" class="btn btn-danger">Delete Post</a>
         </div>
     {% endif %}
 </article>

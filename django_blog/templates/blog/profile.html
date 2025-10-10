@@ -12,8 +12,8 @@
     </div>
     
     <div class="profile-actions">
-        <a href="{% url 'post-create' %}" class="btn">Create New Post</a>
-        <a href="{% url 'post-list' %}" class="btn">View All Posts</a>
+        <a href="{% url 'post_create' %}" class="btn">Create New Post</a>  <!-- ✅ Fixed: post-create → post_create -->
+        <a href="{% url 'post_list' %}" class="btn">View All Posts</a>  <!-- ✅ Fixed: post-list → post_list -->
     </div>
 </div>
 {% endblock %}
