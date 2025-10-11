@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+
+{% block title %}
+    {% if object %}Edit {{ object.title }}{% else %}Create New Post{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{% if object %}Edit Post{% else %}Create New Post{% endif %}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn">
+            {% if object %}Update Post{% else %}Create Post{% endif %}
+        </button>
+        <a href="{% if object %}{% url 'post_detail' object.pk %}{% else %}{% url 'post_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>  <!-- ✅ Fixed: post-detail → post_detail, post-list → post_list, object.id → object.pk -->
+    </form>
+</div>
+{% endblock %}
