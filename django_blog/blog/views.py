@@ -134,22 +134,20 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment_form.html'
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/blog_edit.html'
 
     def form_valid(self, form):
-        messages.success(self.request, 'Your comment has been updated!')
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your post has been updated!')
         return super().form_valid(form)
 
     def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
-
-    def get_success_url(self):
-        return self.object.post.get_absolute_url()
-
+        post = self.get_object()
+        return self.request.user == post.author
+    
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
