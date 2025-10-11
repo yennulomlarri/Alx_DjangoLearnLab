@@ -1,19 +1,29 @@
 {% extends "blog/base.html" %}
+{% load static %}
 
 {% block title %}Profile - Django Blog{% endblock %}
 
 {% block content %}
-<div class="profile-container">
+<div class="auth-container">
     <h2>Your Profile</h2>
-    <div class="profile-info">
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
-    </div>
     
-    <div class="profile-actions">
-        <a href="{% url 'post_create' %}" class="btn">Create New Post</a>  <!-- ✅ Fixed: post-create → post_create -->
-        <a href="{% url 'post_list' %}" class="btn">View All Posts</a>  <!-- ✅ Fixed: post-list → post_list -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+    
+    <div class="auth-links">
+        <a href="{% url 'post_list' %}" class="btn btn-secondary">Back to Posts</a>
+        <a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
     </div>
 </div>
 {% endblock %}

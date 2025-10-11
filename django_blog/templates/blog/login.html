@@ -4,27 +4,29 @@
 {% block title %}Login - Django Blog{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Login</h2>
-
-    <!-- ✅ Show authentication error messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
+<div class="auth-container">
+    <h2>Login to Your Account</h2>
+    
+    {% if form.errors %}
+    <div class="alert alert-error">
+        <p>Your username and password didn't match. Please try again.</p>
+    </div>
     {% endif %}
 
-    <!-- ✅ Login Form -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
 
-    <p>Don’t have an account? 
-        <a href="{% url 'register' %}">Register</a>
-    </p>
+    <p class="auth-links">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
 </div>
-{% endblock %}
+   {% endblock %}
