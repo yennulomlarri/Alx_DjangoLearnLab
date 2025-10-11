@@ -80,7 +80,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/blog_edit.html'
+    template_name = 'blog/blog_update.html'  # ✅ CHANGED: blog_edit.html → blog_update.html
 
     def form_valid(self, form):
         form.instance.author = self.request.user
