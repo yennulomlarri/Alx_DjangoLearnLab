@@ -1,12 +1,17 @@
-{% if user.is_authenticated %}
-    <!-- Change logout to use a form for POST request -->
-    <li>
-        <form method="post" action="{% url 'logout' %}" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn-link">Logout</button>
-        </form>
-    </li>
-{% else %}
-    <li><a href="{% url 'login' %}">Login</a></li>
-    <li><a href="{% url 'register' %}">Register</a></li>
-{% endif %}
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Logged Out - Django Blog{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>You have been logged out</h2>
+    <div class="alert alert-success">
+        <p>You have been successfully logged out. Thank you for visiting!</p>
+    </div>
+    <div class="auth-links">
+        <a href="{% url 'login' %}" class="btn btn-primary">Log In Again</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -137,7 +137,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/blog_edit.html'
+    template_name = 'blog/blog_update.html'  # ✅ Primary template for UpdateView
+
+    def get_template_names(self):
+        # Allow both update.html and edit.html to work
+        return ['blog/blog_update.html', 'blog/blog_edit.html']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
