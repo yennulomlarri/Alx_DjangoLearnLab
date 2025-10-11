@@ -80,7 +80,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'blog/blog_edit.html' 
+    template_name = 'blog/blog_edit.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -134,24 +134,22 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'blog/blog_update.html'  # ✅ Primary template for UpdateView
-
-    def get_template_names(self):
-        # Allow both update.html and edit.html to work
-        return ['blog/blog_update.html', 'blog/blog_edit.html']
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
-        messages.success(self.request, 'Your post has been updated!')
+        messages.success(self.request, 'Your comment has been updated!')
         return super().form_valid(form)
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
-    
+        comment = self.get_object()
+        return self.request.user == comment.author
+
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
+
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'

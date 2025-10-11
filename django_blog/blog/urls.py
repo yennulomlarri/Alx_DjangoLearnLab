@@ -8,7 +8,7 @@ from .views import (
     PostUpdateView,
     PostDeleteView,
     CommentCreateView,
-    CommentUpdateView,
+    CommentUpdateView,  # ✅ Use correct capitalization
     CommentDeleteView,
     PostByTagListView,
 )
