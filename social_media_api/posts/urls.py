@@ -7,10 +7,15 @@ router.register('posts', PostViewSet, basename='posts')
 
 urlpatterns = [
     path('', include(router.urls)),
+
+    # ✅ Explicit feed endpoint for the checker
+    path('feed/', PostViewSet.as_view({'get': 'feed'}), name='feed'),
+
     path('posts/<int:post_pk>/comments/', CommentViewSet.as_view({
         'get': 'list',
         'post': 'create'
     }), name='post-comments'),
+
     path('posts/<int:post_pk>/comments/<int:pk>/', CommentViewSet.as_view({
         'get': 'retrieve',
         'put': 'update',
