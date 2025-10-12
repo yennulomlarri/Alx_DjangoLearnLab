@@ -1,0 +1,19 @@
+Set-Content -Path "LibraryProject\bookshelf\templates\bookshelf\form_example.html" -Value @"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example Form</title>
+</head>
+<body>
+    <h1>Example Form</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
+"@
+
+# Verify the content was added
+Get-Content "LibraryProject\bookshelf\templates\bookshelf\form_example.html"
