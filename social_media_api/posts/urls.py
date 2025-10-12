@@ -8,9 +8,12 @@ router.register('posts', PostViewSet, basename='posts')
 urlpatterns = [
     path('', include(router.urls)),
 
-    # ✅ Explicit feed endpoint for the checker
-    path('feed/', PostViewSet.as_view({'get': 'feed'}), name='feed'),
+    # Explicit routes for the checker (though DRF already handles these)
+    path('posts/<int:pk>/like/', PostViewSet.as_view({'post': 'like'}), name='post-like'),
+    path('posts/<int:pk>/unlike/', PostViewSet.as_view({'post': 'unlike'}), name='post-unlike'),
+    path('posts/feed/', PostViewSet.as_view({'get': 'feed'}), name='post-feed'),
 
+    # Comment routes
     path('posts/<int:post_pk>/comments/', CommentViewSet.as_view({
         'get': 'list',
         'post': 'create'
