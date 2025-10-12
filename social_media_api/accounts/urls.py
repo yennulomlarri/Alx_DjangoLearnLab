@@ -1,9 +1,9 @@
 from django.urls import path
 from django.http import HttpResponse
-from .views import RegisterView, LoginView, follow_user, unfollow_user
+from .views import RegisterView, LoginView, FollowUserView, UnfollowUserView
 
 urlpatterns = [
-    # 👇 Add this default welcome message for /api/accounts/
+    # 👇 Default welcome page for /api/accounts/
     path('', lambda request: HttpResponse(
         """
         <h2>Accounts API Endpoints</h2>
@@ -19,6 +19,6 @@ urlpatterns = [
 
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
-    path('follow/<int:user_id>/', follow_user, name='follow_user'),
-    path('unfollow/<int:user_id>/', unfollow_user, name='unfollow_user'),
+    path('follow/<int:user_id>/', FollowUserView.as_view(), name='follow_user'),
+    path('unfollow/<int:user_id>/', UnfollowUserView.as_view(), name='unfollow_user'),
 ]

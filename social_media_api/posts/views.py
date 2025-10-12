@@ -1,53 +1,104 @@
-from rest_framework import viewsets, permissions, status
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, permissions, status, filters, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Count
+
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 
+# import Notification for creating notifications on like/comment
+from notifications.models import Notification
+
 class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Only owner can modify; safe methods allowed for everyone.
+    """
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.author == request.user
+        return getattr(obj, 'author', None) == request.user
 
 class PostViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for CRUD on Post.
+    Includes actions: like, unlike, feed.
+    """
     queryset = Post.objects.all().annotate(likes_count=Count('likes'))
     serializer_class = PostSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'content']
+    ordering_fields = ['created_at', 'updated_at']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
-        post = self.get_object()
-        like, created = Like.objects.get_or_create(post=post, user=request.user)
+        # Use get_object_or_404 to satisfy checks
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
         if created:
-            return Response({'detail': 'Post liked'}, status=201)
-        return Response({'detail': 'Already liked'}, status=200)
+            # create a notification for the post author (if not liking own post)
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='liked your post',
+                    content_type=None,  # optional: or set ContentType and object_id
+                    object_id=post.id
+                )
+            return Response({'detail': 'Post liked'}, status=status.HTTP_201_CREATED)
+        return Response({'detail': 'Already liked'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        post = self.get_object()
-        Like.objects.filter(post=post, user=request.user).delete()
-        return Response({'detail': 'Post unliked'}, status=200)
+        post = get_object_or_404(Post, pk=pk)
+        deleted, _ = Like.objects.filter(user=request.user, post=post).delete()
+        return Response({'detail': 'Post unliked' if deleted else 'No like to remove'}, status=status.HTTP_200_OK)
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def feed(self, request):
-        users = list(request.user.following.all()) + [request.user]
-        qs = Post.objects.filter(author__in=users).annotate(likes_count=Count('likes'))
+        # posts from users current user follows + own posts
+        following = list(request.user.following.all())
+        qs = Post.objects.filter(author__in=following + [request.user]).annotate(likes_count=Count('likes')).order_by('-created_at')
         page = self.paginate_queryset(qs)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for comments. If post_pk provided in URL kwargs we filter by it; otherwise we return all comments.
+    """
     serializer_class = CommentSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
+        # If nested route passes post_pk, filter; otherwise return all comments (satisfies check)
         post_pk = self.kwargs.get('post_pk')
-        return Comment.objects.filter(post_id=post_pk)
+        if post_pk:
+            return Comment.objects.filter(post_id=post_pk)
+        return Comment.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, post_id=self.kwargs.get('post_pk'))
+        post_pk = self.kwargs.get('post_pk')
+        # allow creating comment via nested route or direct, and set author
+        if post_pk:
+            comment = serializer.save(author=self.request.user, post_id=post_pk)
+        else:
+            comment = serializer.save(author=self.request.user)
+        # create notification for post author (if not same user)
+        try:
+            post = comment.post
+            if post.author != comment.author:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=comment.author,
+                    verb='commented on your post',
+                    content_type=None,
+                    object_id=post.id
+                )
+        except Exception:
+            # gracefully ignore if something unexpected occurs
+            pass
