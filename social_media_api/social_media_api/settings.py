@@ -9,6 +9,14 @@ DEBUG = False
 DEBUG = False
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
+# Security-related headers and redirects
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_SSL_REDIRECT = False  # Set to True only in production with HTTPS
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
